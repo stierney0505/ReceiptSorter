@@ -15,13 +15,14 @@ import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.image.*;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.TextAlignment;
 
 public class receiptSorter extends Application {
 	ComboBox<String> names = new ComboBox<String>();
 	Stage popUp = new Stage();
-	BorderPane mainPane;
-	Scene mainScene;
 	HBox topBar;
 	TextField dateField;
 	TextField priceField;
@@ -38,26 +39,28 @@ public class receiptSorter extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		primaryStage.setTitle("receiptSorter");
-		names = loadNames();
+		names = loadNames(); //TODO create css file for combobox styles
 
 		Button addName = new Button();
 		Image addButtonImg = new Image("dataFiles/addIcon.png");
 		ImageView addImageView = new ImageView(addButtonImg);
-		addImageView.setFitHeight(80);
+		addImageView.setFitHeight(50);
 		addImageView.setPreserveRatio(true);
 		addName.setGraphic(addImageView);
 		addName.setOnAction(event -> addPersonHandler());
+		addName.setStyle("-fx-background-color: #50C878;");
 
 		Button deleteName = new Button();
 		Image deleteButtonImg = new Image("dataFiles/deleteIcon.png");
 		ImageView deleteImageView = new ImageView(deleteButtonImg);
-		deleteImageView.setFitHeight(80);
+		deleteImageView.setFitHeight(50);
 		deleteImageView.setPreserveRatio(true);
 		deleteName.setGraphic(deleteImageView);
 		deleteName.setOnAction(event -> produceWarningPopUp(
 				"Are you sure you want to remove " + names.getSelectionModel().getSelectedItem() + " from the program?",
 				true));
-
+		deleteName.setStyle("-fx-background-color: #C70039;");
+		
 		topBar = new HBox(names, addName, deleteName);
 		topBar.setSpacing(20);
 		topBar.setAlignment(Pos.CENTER);
@@ -77,6 +80,7 @@ public class receiptSorter extends Application {
 		Label dateLabel = new Label("Date:");
 		HBox date = new HBox(dateLabel, dateField);
 		date.setAlignment(Pos.CENTER_RIGHT);
+		date.setSpacing(5);
 
 		priceField = new TextField();
 		priceField.setText(defaultPriceText);
@@ -91,21 +95,24 @@ public class receiptSorter extends Application {
 		});
 		Label priceLabel = new Label("Price:");
 		HBox price = new HBox(priceLabel, priceField);
+		price.setSpacing(5);
 
 		locField = new TextField();
 		Label locLabel = new Label("Location:");
 		HBox location = new HBox(locLabel, locField);
+		location.setSpacing(5);
 
 		typeField = new TextField();
 		Label typeLabel = new Label("Type:");
 		HBox type = new HBox(typeLabel, typeField);
+		type.setSpacing(5);
 
 		GridPane middle = new GridPane();
 		middle.add(date, 0, 0);
 		middle.add(price, 1, 0);
 		middle.add(location, 0, 1);
 		middle.add(type, 1, 1);
-		middle.setHgap(10);
+		middle.setHgap(20);
 		middle.setVgap(10);
 		middle.setAlignment(Pos.CENTER);
 
@@ -113,18 +120,17 @@ public class receiptSorter extends Application {
 		addReceipt.setPrefSize(120, 40);
 		addReceipt.setFont(new Font(16));
 		addReceipt.setOnAction(event -> addReceipt());
+		addReceipt.setStyle("-fx-background-color: #C576F6;");
+		
 		HBox buttonAlignment = new HBox(addReceipt);
 		buttonAlignment.setAlignment(Pos.CENTER);
-		buttonAlignment.setPadding(new Insets(0, 0, 40, 0));
 
-		mainPane = new BorderPane();
-		mainPane.setTop(topBar);
-		mainPane.setCenter(middle);
-		mainPane.setBottom(buttonAlignment);
-		mainScene = new Scene(mainPane, 500, 200);
+		VBox mainElements = new VBox(topBar, middle, buttonAlignment);
+		mainElements.setSpacing(30);
+		mainElements.setAlignment(Pos.TOP_CENTER);
+		mainElements.setPadding(new Insets(17.5,20,17.5,20));
+		Scene mainScene = new Scene(mainElements);
 		primaryStage.setScene(mainScene);
-		primaryStage.setWidth(500);
-		primaryStage.setHeight(500);
 		primaryStage.show();
 
 	}
@@ -182,6 +188,7 @@ public class receiptSorter extends Application {
 					topBar.getChildren().add(0, names);
 					addPersonStage.close();
 				}
+				br.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -202,13 +209,26 @@ public class receiptSorter extends Application {
 	public void produceWarningPopUp(String message, boolean removePerson) {
 
 		Label warning = new Label(message);
+		warning.setTextAlignment(TextAlignment.CENTER);
+		warning.setFont(new Font(18));
 		warning.setWrapText(true);
-		Button warningButton;
+		Button warningButton = new Button();
+		warningButton.setPrefSize(120, 40);
+		warningButton.setFont(Font.font(warningButton.getFont().getName(),FontWeight.BOLD, 16));
 		HBox buttons;
 		if (removePerson) {
+			warning.setPrefWidth(400);
+			warning.setTextFill(Color.RED);
+			warning.setFont(Font.font(warning.getFont().getName(),FontWeight.BOLD, 22));
 			Button nevermind = new Button("Nevermind");
-			warningButton = new Button("Remove");
+			nevermind.setStyle("-fx-background-color: #DAA520;");
+			nevermind.setFont(Font.font(nevermind.getFont().getName(),FontWeight.BOLD, 16));
+			nevermind.setPrefSize(120, 40);
+			warningButton.setText("Remove");
+			warningButton.setStyle("-fx-background-color: #B33A3A;");
+			warningButton.setFont(Font.font(warningButton.getFont().getName(),FontWeight.BOLD, 16));
 			buttons = new HBox(warningButton, nevermind);
+			buttons.setSpacing(30);
 			nevermind.setOnAction(event->{ popUp.close();});
 			warningButton.setOnAction(event -> {
 				String removeName = names.getSelectionModel().getSelectedItem();
@@ -237,11 +257,17 @@ public class receiptSorter extends Application {
 				}
 			});
 		} else {
-			warningButton = new Button("I understand");
+			warning.setPrefWidth(250);
+			warningButton.setText("I understand");
+			warningButton.setStyle("-fx-background-color: #6082B6;");
 			warningButton.setOnAction(event->{ popUp.close();});
 			buttons = new HBox(warningButton);
 		}
+		buttons.setAlignment(Pos.CENTER);
 		VBox allElements = new VBox(warning, buttons);
+		allElements.setPadding(new Insets(10,15,20,15));
+		allElements.setAlignment(Pos.CENTER);
+		allElements.setSpacing(20);
 		popUp.setScene(new Scene(allElements));
 		popUp.setTitle("Warning");
 		popUp.show();
@@ -254,7 +280,7 @@ public class receiptSorter extends Application {
 			FileWriter fr;
 			if(receiptFile.createNewFile()) {
 				fr = new FileWriter(receiptFile, true);
-				fr.write("Date, Price, Location, Type, Sum Of Prices:, =SUM(B2:B10000),\n");//This sums up to a ten thousand receipts if you need more I guess change it
+				fr.write("Date, Price, Location, Type, Sum Of Prices:,=SUM(b:b),\n");//This sums up to a ten thousand receipts if you need more I guess change it
 			}
 			else
 				fr = new FileWriter(receiptFile, true);
